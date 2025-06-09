@@ -3,84 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Website Builder</title>
+    <title>Website Builder</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
         .container {
             display: flex;
             height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            gap: 2px;
         }
+        
         .editor-panel {
             flex: 1;
-            padding: 10px;
-            background: #1e1e1e;
-            color: #f0f0f0;
+            background: #121212;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
+        
         .preview-panel {
             flex: 1;
-            padding: 10px;
-            background: white;
-            border-left: 1px solid #ccc;
-            overflow: auto;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 0;
         }
-        textarea {
-            width: 100%;
-            height: 30%;
-            background: #1e1e1e;
-            color: #f0f0f0;
-            border: none;
-            padding: 10px;
-            font-family: 'Courier New', monospace;
-            resize: none;
-        }
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        button:hover {
-            background: #45a049;
-        }
-        h2 {
-            margin-top: 0;
-            color: white;
-        }
-        .controls {
-            background: #333;
-            padding: 10px;
+        
+        .header {
+            background: linear-gradient(90deg, #2d2d2d 0%, #1f1f1f 100%);
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
+        
+        .title {
+            color: #00d4aa;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%);
+            color: #e0e0e0;
+            border: 1px solid #444;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        button:hover {
+            background: linear-gradient(145deg, #4a4a4a 0%, #3a3a3a 100%);
+            border-color: #555;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .run-btn {
+            background: linear-gradient(145deg, #00d4aa 0%, #00b894 100%) !important;
+            border-color: #00d4aa !important;
+        }
+        
+        .run-btn:hover {
+            background: linear-gradient(145deg, #00e2b8 0%, #00d4aa 100%) !important;
+        }
+        
+        .editor-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #2a2a2a;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .code-section.collapsed {
+            flex: 0 0 auto;
+        }
+        
+        .code-section.collapsed textarea {
+            display: none;
+        }
+        
+        .code-section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-label {
+            background: #1f1f1f;
+            padding: 8px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #00d4aa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #2a2a2a;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .section-label:hover {
+            background: #252525;
+        }
+        
+        .section-label::after {
+            content: "▼";
+            position: absolute;
+            right: 20px;
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .section-label.collapsed::after {
+            transform: rotate(-90deg);
+        }
+        
+        textarea {
+            flex: 1;
+            background: #0d1117;
+            color: #e6edf3;
+            border: none;
+            padding: 15px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+        
+        textarea:focus {
+            background: #161b22;
+        }
+        
+        textarea::selection {
+            background: #264f78;
+        }
+        
+        .preview-header {
+            background: linear-gradient(90deg, #2d2d2d 0%, #1f1f1f 100%);
+            padding: 12px 20px;
+            border-bottom: 2px solid #333;
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d4aa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .preview-header::before {
+            content: "👁️";
+            font-size: 16px;
+        }
+        
         iframe {
-            width: 100%;
-            height: 100%;
+            flex: 1;
             border: none;
             background: white;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Custom scrollbar */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        textarea::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        textarea::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 4px;
+        }
+        
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="editor-panel">
-            <div class="controls">
-                <h2>Website Builder</h2>
-                <div>
-                    <button id="run-btn">▶ Run</button>
+            <div class="header">
+                <div class="title">Website Builder</div>
+                <div class="controls">
+                    <button id="run-btn" class="run-btn">▶ Run</button>
                     <button id="export-btn">💾 Export</button>
                     <button id="clear-btn">🗑️ Clear</button>
                 </div>
             </div>
-            <h3>HTML</h3>
-            <textarea id="html-code" spellcheck="false"><!DOCTYPE html>
+            
+            <div class="editor-content">
+                <div class="code-section" data-section="html">
+                    <div class="section-label">HTML</div>
+                    <textarea id="html-code" spellcheck="false"><!DOCTYPE html>
 <html>
 <head>
     <title>My Website</title>
@@ -90,9 +271,11 @@
     <p>This is a simple website built with this tool.</p>
 </body>
 </html></textarea>
-
-            <h3>CSS</h3>
-            <textarea id="css-code" spellcheck="false">body {
+                </div>
+                
+                <div class="code-section" data-section="css">
+                    <div class="section-label">CSS</div>
+                    <textarea id="css-code" spellcheck="false">body {
     font-family: Arial, sans-serif;
     text-align: center;
     padding: 20px;
@@ -101,13 +284,19 @@
 h1 {
     color: #4CAF50;
 }</textarea>
-
-            <h3>JavaScript</h3>
-            <textarea id="js-code" spellcheck="false">document.querySelector('h1').addEventListener('click', () => {
+                </div>
+                
+                <div class="code-section" data-section="js">
+                    <div class="section-label">JavaScript</div>
+                    <textarea id="js-code" spellcheck="false">document.querySelector('h1').addEventListener('click', () => {
     alert('Welcome to my website!');
 });</textarea>
+                </div>
+            </div>
         </div>
+        
         <div class="preview-panel">
+            <div class="preview-header">Live Preview</div>
             <iframe id="preview-frame"></iframe>
         </div>
     </div>
@@ -121,10 +310,35 @@ h1 {
         const exportBtn = document.getElementById('export-btn');
         const clearBtn = document.getElementById('clear-btn');
 
-        // Update preview when "Run" is clicked
+        // Add collapse functionality for sections
+        document.querySelectorAll('.section-label').forEach(label => {
+            label.addEventListener('click', () => {
+                const section = label.parentElement;
+                section.classList.toggle('collapsed');
+                label.classList.toggle('collapsed');
+                
+                // Redistribute flex space among non-collapsed sections
+                redistributeSpace();
+            });
+        });
+        
+        function redistributeSpace() {
+            const sections = document.querySelectorAll('.code-section');
+            const expandedSections = document.querySelectorAll('.code-section:not(.collapsed)');
+            
+            sections.forEach(section => {
+                if (section.classList.contains('collapsed')) {
+                    section.style.flex = '0 0 auto';
+                } else {
+                    section.style.flex = `1 1 ${100 / expandedSections.length}%`;
+                }
+            });
+        }
+
+        // Update preview when "Run" is clicked (optional since auto-update is enabled)
         runBtn.addEventListener('click', updatePreview);
 
-        // Auto-update preview while typing (optional)
+        // Auto-update preview while typing
         htmlCode.addEventListener('input', updatePreview);
         cssCode.addEventListener('input', updatePreview);
         jsCode.addEventListener('input', updatePreview);
