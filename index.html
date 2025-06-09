@@ -63,8 +63,6 @@
             gap: 10px;
         }
         
-
-        
         .controls {
             display: flex;
             gap: 10px;
@@ -297,7 +295,7 @@ h1 {
         
         <div class="preview-panel">
             <div class="preview-header">Live Preview</div>
-            <iframe id="preview-frame"></iframe>
+            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"></iframe>
         </div>
     </div>
 
@@ -335,27 +333,71 @@ h1 {
             });
         }
 
-        // Update preview when "Run" is clicked (optional since auto-update is enabled)
+        // Update preview when "Run" is clicked
         runBtn.addEventListener('click', updatePreview);
 
-        // Auto-update preview while typing
-        htmlCode.addEventListener('input', updatePreview);
-        cssCode.addEventListener('input', updatePreview);
-        jsCode.addEventListener('input', updatePreview);
+        // Auto-update preview while typing with debounce for better performance
+        let debounceTimer;
+        function debounceUpdate() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(updatePreview, 300);
+        }
+
+        htmlCode.addEventListener('input', debounceUpdate);
+        cssCode.addEventListener('input', debounceUpdate);
+        jsCode.addEventListener('input', debounceUpdate);
 
         // Export code as HTML file
         exportBtn.addEventListener('click', () => {
-            const fullCode = `
-<!DOCTYPE html>
+            const htmlContent = htmlCode.value;
+            let finalHtml;
+            
+            // Check if HTML contains full document structure
+            if (htmlContent.includes('<!DOCTYPE html>') && htmlContent.includes('<html>')) {
+                // Full HTML document - inject CSS and JS properly
+                let modifiedHtml = htmlContent;
+                
+                // Add CSS
+                if (cssCode.value.trim()) {
+                    const cssToAdd = `<style>\n${cssCode.value}\n</style>`;
+                    if (modifiedHtml.includes('</head>')) {
+                        modifiedHtml = modifiedHtml.replace('</head>', `    ${cssToAdd}\n</head>`);
+                    } else if (modifiedHtml.includes('<head>')) {
+                        modifiedHtml = modifiedHtml.replace('<head>', `<head>\n    ${cssToAdd}`);
+                    } else {
+                        modifiedHtml = modifiedHtml.replace('<html>', `<html>\n<head>\n    ${cssToAdd}\n</head>`);
+                    }
+                }
+                
+                // Add JS
+                if (jsCode.value.trim()) {
+                    const jsToAdd = `<script>\n${jsCode.value}\n</script>`;
+                    if (modifiedHtml.includes('</body>')) {
+                        modifiedHtml = modifiedHtml.replace('</body>', `    ${jsToAdd}\n</body>`);
+                    } else {
+                        modifiedHtml += `\n${jsToAdd}`;
+                    }
+                }
+                
+                finalHtml = modifiedHtml;
+            } else {
+                // HTML fragment - wrap in full document
+                finalHtml = `<!DOCTYPE html>
 <html>
 <head>
-    <style>${cssCode.value}</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+    ${cssCode.value.trim() ? `<style>\n${cssCode.value}\n</style>` : ''}
 </head>
-${htmlCode.value.replace('<head>', '<head>\n    <script>document.addEventListener("DOMContentLoaded", () => {${jsCode.value}});<\/script>')}
-</html>
-            `;
+<body>
+    ${htmlContent}
+    ${jsCode.value.trim() ? `<script>\n${jsCode.value}\n</script>` : ''}
+</body>
+</html>`;
+            }
             
-            const blob = new Blob([fullCode], { type: 'text/html' });
+            const blob = new Blob([finalHtml], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -367,28 +409,110 @@ ${htmlCode.value.replace('<head>', '<head>\n    <script>document.addEventListene
         // Clear all code
         clearBtn.addEventListener('click', () => {
             if (confirm('Clear all code?')) {
-                htmlCode.value = '';
-                cssCode.value = '';
-                jsCode.value = '';
+                htmlCode.value = `<!DOCTYPE html>
+<html>
+<head>
+    <title>My Website</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+    <p>This is a simple website built with this tool.</p>
+</body>
+</html>`;
+                cssCode.value = `body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    color: #4CAF50;
+}`;
+                jsCode.value = `document.querySelector('h1').addEventListener('click', () => {
+    alert('Welcome to my website!');
+});`;
                 updatePreview();
             }
         });
 
-        // Update the preview
+        // Enhanced preview update function
         function updatePreview() {
-            const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-            doc.open();
-            doc.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>${cssCode.value}</style>
-                    <script>document.addEventListener('DOMContentLoaded', () => {${jsCode.value}});<\/script>
-                </head>
-                ${htmlCode.value}
-                </html>
-            `);
-            doc.close();
+            try {
+                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                const htmlContent = htmlCode.value.trim();
+                const cssContent = cssCode.value.trim();
+                const jsContent = jsCode.value.trim();
+                
+                let finalHtml;
+                
+                // Check if HTML contains full document structure
+                if (htmlContent.includes('<!DOCTYPE html>') && htmlContent.includes('<html>')) {
+                    // Full HTML document - inject CSS and JS properly
+                    let modifiedHtml = htmlContent;
+                    
+                    // Add CSS if not already included
+                    if (cssContent && !htmlContent.includes('<style>')) {
+                        const cssToAdd = `<style>\n${cssContent}\n</style>`;
+                        if (modifiedHtml.includes('</head>')) {
+                            modifiedHtml = modifiedHtml.replace('</head>', `    ${cssToAdd}\n</head>`);
+                        } else if (modifiedHtml.includes('<head>')) {
+                            modifiedHtml = modifiedHtml.replace('<head>', `<head>\n    ${cssToAdd}`);
+                        } else {
+                            modifiedHtml = modifiedHtml.replace('<html>', `<html>\n<head>\n    ${cssToAdd}\n</head>`);
+                        }
+                    }
+                    
+                    // Add JS if not already included
+                    if (jsContent && !htmlContent.includes('<script>')) {
+                        const jsToAdd = `<script>\n${jsContent}\n</script>`;
+                        if (modifiedHtml.includes('</body>')) {
+                            modifiedHtml = modifiedHtml.replace('</body>', `    ${jsToAdd}\n</body>`);
+                        } else {
+                            modifiedHtml += `\n${jsToAdd}`;
+                        }
+                    }
+                    
+                    finalHtml = modifiedHtml;
+                } else {
+                    // HTML fragment or body content - wrap in full document
+                    finalHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+    ${cssContent ? `<style>\n${cssContent}\n</style>` : ''}
+</head>
+<body>
+    ${htmlContent}
+    ${jsContent ? `<script>\ntry {\n${jsContent}\n} catch(e) { console.error('JS Error:', e); }\n</script>` : ''}
+</body>
+</html>`;
+                }
+                
+                doc.open();
+                doc.write(finalHtml);
+                doc.close();
+                
+            } catch (error) {
+                console.error('Preview update error:', error);
+                // Fallback to basic preview if there's an error
+                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                doc.open();
+                doc.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>${cssCode.value}</style>
+                    </head>
+                    <body>
+                        ${htmlCode.value}
+                        <script>try { ${jsCode.value} } catch(e) { console.error(e); }</script>
+                    </body>
+                    </html>
+                `);
+                doc.close();
+            }
         }
 
         // Initialize preview
