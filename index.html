@@ -1,522 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Builder</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .container {
-            display: flex;
-            height: 100vh;
-            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
-            gap: 2px;
-        }
-        
-        .editor-panel {
-            flex: 1;
-            background: #121212;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-        
-        .preview-panel {
-            flex: 1;
-            background: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            border: 2px solid #333;
-            border-radius: 8px;
-            overflow: hidden;
-            min-width: 0;
-        }
-        
-        .header {
-            background: linear-gradient(90deg, #2d2d2d 0%, #1f1f1f 100%);
-            padding: 15px 20px;
-            border-bottom: 1px solid #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .title {
-            color: #00d4aa;
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        button {
-            background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%);
-            color: #e0e0e0;
-            border: 1px solid #444;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        button:hover {
-            background: linear-gradient(145deg, #4a4a4a 0%, #3a3a3a 100%);
-            border-color: #555;
-            transform: translateY(-1px);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .run-btn {
-            background: linear-gradient(145deg, #00d4aa 0%, #00b894 100%) !important;
-            border-color: #00d4aa !important;
-        }
-        
-        .run-btn:hover {
-            background: linear-gradient(145deg, #00e2b8 0%, #00d4aa 100%) !important;
-        }
-        
-        .editor-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .code-section {
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #2a2a2a;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .code-section.collapsed {
-            flex: 0 0 auto;
-        }
-        
-        .code-section.collapsed textarea {
-            display: none;
-        }
-        
-        .code-section:last-child {
-            border-bottom: none;
-        }
-        
-        .section-label {
-            background: #1f1f1f;
-            padding: 8px 20px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #00d4aa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #2a2a2a;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .section-label:hover {
-            background: #252525;
-        }
-        
-        .section-label::after {
-            content: "▼";
-            position: absolute;
-            right: 20px;
-            font-size: 10px;
-            transition: transform 0.3s ease;
-        }
-        
-        .section-label.collapsed::after {
-            transform: rotate(-90deg);
-        }
-        
-        textarea {
-            flex: 1;
-            background: #0d1117;
-            color: #e6edf3;
-            border: none;
-            padding: 15px;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-        }
-        
-        textarea:focus {
-            background: #161b22;
-        }
-        
-        textarea::selection {
-            background: #264f78;
-        }
-        
-        .preview-header {
-            background: linear-gradient(90deg, #2d2d2d 0%, #1f1f1f 100%);
-            padding: 12px 20px;
-            border-bottom: 2px solid #333;
-            font-size: 14px;
-            font-weight: 600;
-            color: #00d4aa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .preview-header::before {
-            content: "👁️";
-            font-size: 16px;
-        }
-        
-        iframe {
-            flex: 1;
-            border: none;
-            background: white;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Custom scrollbar */
-        textarea::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        textarea::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-        
-        textarea::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 4px;
-        }
-        
-        textarea::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            
-            .controls {
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-            
-            button {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Website Maker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-main: #191a1f;
+      --bg-panel: #1a1a22;
+      --bg-section: #23242a;
+      --bg-editor: #181920;
+      --text: #f6f6f7;
+      --text-title: #e3e3e5;
+      --shadow: 0 2px 8px #0005;
+      --shadow-section: 0 1px 5px #0003;
+      --accent: #3e98fc;
+      --radius: 8px;
+      --radius-small: 6px;
+      --font: 'Segoe UI', Arial, Helvetica, sans-serif;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg-main);
+      color: var(--text);
+      font-family: var(--font);
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-wrap {
+      flex: 1;
+      display: flex;
+      height: 100vh;
+    }
+    .editor-panel {
+      width: 44vw;
+      min-width: 320px;
+      max-width: 600px;
+      background: var(--bg-panel);
+      padding: 1.5rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      overflow-y: auto;
+      border-right: 2px solid #16171c;
+    }
+    .section {
+      margin-bottom: 1rem;
+      border-radius: var(--radius-small);
+      overflow: hidden;
+      box-shadow: var(--shadow-section);
+      background: var(--bg-section);
+    }
+    .section-header {
+      background: var(--bg-section);
+      color: var(--text-title);
+      cursor: pointer;
+      padding: 0.7rem 1rem;
+      display: flex;
+      align-items: center;
+      user-select: none;
+      font-weight: 600;
+      font-size: 1.07em;
+    }
+    .section-header span.arrow {
+      font-weight: 900;
+      font-size: 20px;
+      margin-left: auto;
+    }
+    .section-content {
+      background: var(--bg-editor);
+      padding: 0.5rem 0.5rem 0.5rem 1rem;
+    }
+    .section-content textarea {
+      width: 100%;
+      min-height: 100px;
+      font-family: 'Fira Mono', 'Consolas', monospace;
+      background: var(--bg-editor);
+      color: var(--text);
+      border: 1px solid #23242a;
+      border-radius: 4px;
+      font-size: 1em;
+      resize: vertical;
+      box-sizing: border-box;
+      transition: border 0.2s;
+    }
+    .section-content textarea:focus {
+      outline: none;
+      border: 1.5px solid var(--accent);
+      background: #20212b;
+    }
+    .live-view-panel {
+      flex: 1;
+      background: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+    .iframe-wrap {
+      flex: 1;
+      margin: 2rem;
+      margin-top: 0;
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1.5px solid #22232c;
+      overflow: hidden;
+      min-height: 400px;
+      min-width: 300px;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s;
+      position: relative;
+    }
+    .titlebar {
+      background: var(--bg-panel);
+      padding: 1rem 2rem 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      font-size: 1.5em;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--text-title);
+      border-bottom: 1px solid #23242a;
+      box-shadow: 0 2px 8px #0002;
+      margin-bottom: 0.5rem;
+    }
+    @media (max-width: 950px) {
+      .app-wrap {
+        flex-direction: column;
+      }
+      .editor-panel {
+        width: 100vw;
+        max-width: none;
+        border-right: none;
+        border-bottom: 2px solid #16171c;
+      }
+      .live-view-panel {
+        min-height: 300px;
+      }
+      .iframe-wrap {
+        margin: 1rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .titlebar {
+        font-size: 1.1em;
+        padding: 0.8rem 1rem;
+      }
+      .editor-panel, .iframe-wrap {
+        margin: 0.5rem;
+        padding: 0.7rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="editor-panel">
-            <div class="header">
-                <div class="title">Website Builder</div>
-                <div class="controls">
-                    <button id="run-btn" class="run-btn">▶ Run</button>
-                    <button id="export-btn">💾 Export</button>
-                    <button id="clear-btn">🗑️ Clear</button>
-                </div>
-            </div>
-            
-            <div class="editor-content">
-                <div class="code-section" data-section="html">
-                    <div class="section-label">HTML</div>
-                    <textarea id="html-code" spellcheck="false"><!DOCTYPE html>
-<html>
-<head>
-    <title>My Website</title>
-</head>
-<body>
-    <h1>Hello, World!</h1>
-    <p>This is a simple website built with this tool.</p>
-</body>
-</html></textarea>
-                </div>
-                
-                <div class="code-section" data-section="css">
-                    <div class="section-label">CSS</div>
-                    <textarea id="css-code" spellcheck="false">body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-}
-
-h1 {
-    color: #4CAF50;
-}</textarea>
-                </div>
-                
-                <div class="code-section" data-section="js">
-                    <div class="section-label">JavaScript</div>
-                    <textarea id="js-code" spellcheck="false">document.querySelector('h1').addEventListener('click', () => {
-    alert('Welcome to my website!');
-});</textarea>
-                </div>
-            </div>
+  <div class="titlebar">Website Maker</div>
+  <div class="app-wrap">
+    <div class="editor-panel">
+      <div class="section" id="html-section">
+        <div class="section-header" onclick="toggleSection('html')">
+          HTML
+          <span class="arrow" id="html-arrow">▾</span>
         </div>
-        
-        <div class="preview-panel">
-            <div class="preview-header">Live Preview</div>
-            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads"></iframe>
+        <div class="section-content" id="html-content">
+          <textarea id="html-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
         </div>
+      </div>
+      <div class="section" id="css-section">
+        <div class="section-header" onclick="toggleSection('css')">
+          CSS
+          <span class="arrow" id="css-arrow">▾</span>
+        </div>
+        <div class="section-content" id="css-content">
+          <textarea id="css-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+      <div class="section" id="js-section">
+        <div class="section-header" onclick="toggleSection('js')">
+          JS
+          <span class="arrow" id="js-arrow">▾</span>
+        </div>
+        <div class="section-content" id="js-content">
+          <textarea id="js-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
     </div>
+    <div class="live-view-panel">
+      <div class="iframe-wrap">
+        <iframe id="live-preview" title="Live View" style="width:100%;height:100%;border:none;background:#fff;z-index:1;"></iframe>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Default content
+    const DEFAULT_HTML = `<!-- Start editing HTML here -->\n<div class="container">\n  <h1>Hello, Website Maker!</h1>\n  <p>Edit HTML, CSS, and JS to see changes live.</p>\n</div>`;
+    const DEFAULT_CSS = `/* Start editing CSS here */\nbody {\n  background: #fff;\n  color: #222;\n  font-family: 'Segoe UI', sans-serif;\n}\n.container {\n  padding: 1.5rem;\n  background: #f5f5f5;\n  border-radius: 8px;\n  box-shadow: 0 2px 8px #0002;\n}`;
+    const DEFAULT_JS = `// Start editing JS here\nconsole.log("Welcome to the Website Maker!");`;
 
-    <script>
-        const htmlCode = document.getElementById('html-code');
-        const cssCode = document.getElementById('css-code');
-        const jsCode = document.getElementById('js-code');
-        const previewFrame = document.getElementById('preview-frame');
-        const runBtn = document.getElementById('run-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const clearBtn = document.getElementById('clear-btn');
+    // Collapsible state
+    const collapsed = {
+      html: false,
+      css: false,
+      js: false
+    };
 
-        // Add collapse functionality for sections
-        document.querySelectorAll('.section-label').forEach(label => {
-            label.addEventListener('click', () => {
-                const section = label.parentElement;
-                section.classList.toggle('collapsed');
-                label.classList.toggle('collapsed');
-                
-                // Redistribute flex space among non-collapsed sections
-                redistributeSpace();
-            });
-        });
-        
-        function redistributeSpace() {
-            const sections = document.querySelectorAll('.code-section');
-            const expandedSections = document.querySelectorAll('.code-section:not(.collapsed)');
-            
-            sections.forEach(section => {
-                if (section.classList.contains('collapsed')) {
-                    section.style.flex = '0 0 auto';
-                } else {
-                    section.style.flex = `1 1 ${100 / expandedSections.length}%`;
-                }
-            });
-        }
+    function toggleSection(section) {
+      collapsed[section] = !collapsed[section];
+      document.getElementById(section + '-content').style.display = collapsed[section] ? 'none' : '';
+      document.getElementById(section + '-arrow').textContent = collapsed[section] ? '▸' : '▾';
+    }
 
-        // Update preview when "Run" is clicked
-        runBtn.addEventListener('click', updatePreview);
+    // Set up editors
+    function setupEditors() {
+      // Restore localStorage if available
+      const html = localStorage.getItem('wm_html') || DEFAULT_HTML;
+      const css = localStorage.getItem('wm_css') || DEFAULT_CSS;
+      const js = localStorage.getItem('wm_js') || DEFAULT_JS;
+      document.getElementById('html-input').value = html;
+      document.getElementById('css-input').value = css;
+      document.getElementById('js-input').value = js;
+    }
 
-        // Auto-update preview while typing with debounce for better performance
-        let debounceTimer;
-        function debounceUpdate() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(updatePreview, 300);
-        }
-
-        htmlCode.addEventListener('input', debounceUpdate);
-        cssCode.addEventListener('input', debounceUpdate);
-        jsCode.addEventListener('input', debounceUpdate);
-
-        // Export code as HTML file
-        exportBtn.addEventListener('click', () => {
-            const htmlContent = htmlCode.value;
-            let finalHtml;
-            
-            // Check if HTML contains full document structure
-            if (htmlContent.includes('<!DOCTYPE html>') && htmlContent.includes('<html>')) {
-                // Full HTML document - inject CSS and JS properly
-                let modifiedHtml = htmlContent;
-                
-                // Add CSS
-                if (cssCode.value.trim()) {
-                    const cssToAdd = `<style>\n${cssCode.value}\n</style>`;
-                    if (modifiedHtml.includes('</head>')) {
-                        modifiedHtml = modifiedHtml.replace('</head>', `    ${cssToAdd}\n</head>`);
-                    } else if (modifiedHtml.includes('<head>')) {
-                        modifiedHtml = modifiedHtml.replace('<head>', `<head>\n    ${cssToAdd}`);
-                    } else {
-                        modifiedHtml = modifiedHtml.replace('<html>', `<html>\n<head>\n    ${cssToAdd}\n</head>`);
-                    }
-                }
-                
-                // Add JS
-                if (jsCode.value.trim()) {
-                    const jsToAdd = `<script>\n${jsCode.value}\n</script>`;
-                    if (modifiedHtml.includes('</body>')) {
-                        modifiedHtml = modifiedHtml.replace('</body>', `    ${jsToAdd}\n</body>`);
-                    } else {
-                        modifiedHtml += `\n${jsToAdd}`;
-                    }
-                }
-                
-                finalHtml = modifiedHtml;
-            } else {
-                // HTML fragment - wrap in full document
-                finalHtml = `<!DOCTYPE html>
-<html>
+    function getSrcDoc(html, css, js) {
+      return `
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    ${cssCode.value.trim() ? `<style>\n${cssCode.value}\n</style>` : ''}
+  <meta charset="UTF-8" />
+  <style>
+    html, body { background: #fff; color: #222; }
+    ${css}
+  </style>
 </head>
 <body>
-    ${htmlContent}
-    ${jsCode.value.trim() ? `<script>\n${jsCode.value}\n</script>` : ''}
+  ${html}
+  <script>
+    try {
+      ${js}
+    } catch(e) {
+      document.body.innerHTML += '<pre style="color:#ff5; background:#222; padding:8px; border-radius:4px;">'+e+'</pre>';
+    }
+  <\/script>
 </body>
-</html>`;
-            }
-            
-            const blob = new Blob([finalHtml], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'my-website.html';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
+</html>
+      `;
+    }
 
-        // Clear all code
-        clearBtn.addEventListener('click', () => {
-            if (confirm('Clear all code?')) {
-                htmlCode.value = `<!DOCTYPE html>
-<html>
-<head>
-    <title>My Website</title>
-</head>
-<body>
-    <h1>Hello, World!</h1>
-    <p>This is a simple website built with this tool.</p>
-</body>
-</html>`;
-                cssCode.value = `body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-}
+    function updatePreview() {
+      // Save the focused element to restore after iframe update
+      const active = document.activeElement;
 
-h1 {
-    color: #4CAF50;
-}`;
-                jsCode.value = `document.querySelector('h1').addEventListener('click', () => {
-    alert('Welcome to my website!');
-});`;
-                updatePreview();
-            }
-        });
+      const html = document.getElementById('html-input').value;
+      const css = document.getElementById('css-input').value;
+      const js = document.getElementById('js-input').value;
+      const srcDoc = getSrcDoc(html, css, js);
+      const iframe = document.getElementById('live-preview');
+      iframe.srcdoc = srcDoc;
 
-        // Enhanced preview update function
-        function updatePreview() {
-            try {
-                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-                const htmlContent = htmlCode.value.trim();
-                const cssContent = cssCode.value.trim();
-                const jsContent = jsCode.value.trim();
-                
-                let finalHtml;
-                
-                // Check if HTML contains full document structure
-                if (htmlContent.includes('<!DOCTYPE html>') && htmlContent.includes('<html>')) {
-                    // Full HTML document - inject CSS and JS properly
-                    let modifiedHtml = htmlContent;
-                    
-                    // Add CSS if not already included
-                    if (cssContent && !htmlContent.includes('<style>')) {
-                        const cssToAdd = `<style>\n${cssContent}\n</style>`;
-                        if (modifiedHtml.includes('</head>')) {
-                            modifiedHtml = modifiedHtml.replace('</head>', `    ${cssToAdd}\n</head>`);
-                        } else if (modifiedHtml.includes('<head>')) {
-                            modifiedHtml = modifiedHtml.replace('<head>', `<head>\n    ${cssToAdd}`);
-                        } else {
-                            modifiedHtml = modifiedHtml.replace('<html>', `<html>\n<head>\n    ${cssToAdd}\n</head>`);
-                        }
-                    }
-                    
-                    // Add JS if not already included
-                    if (jsContent && !htmlContent.includes('<script>')) {
-                        const jsToAdd = `<script>\n${jsContent}\n</script>`;
-                        if (modifiedHtml.includes('</body>')) {
-                            modifiedHtml = modifiedHtml.replace('</body>', `    ${jsToAdd}\n</body>`);
-                        } else {
-                            modifiedHtml += `\n${jsToAdd}`;
-                        }
-                    }
-                    
-                    finalHtml = modifiedHtml;
-                } else {
-                    // HTML fragment or body content - wrap in full document
-                    finalHtml = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview</title>
-    ${cssContent ? `<style>\n${cssContent}\n</style>` : ''}
-</head>
-<body>
-    ${htmlContent}
-    ${jsContent ? `<script>\ntry {\n${jsContent}\n} catch(e) { console.error('JS Error:', e); }\n</script>` : ''}
-</body>
-</html>`;
-                }
-                
-                doc.open();
-                doc.write(finalHtml);
-                doc.close();
-                
-            } catch (error) {
-                console.error('Preview update error:', error);
-                // Fallback to basic preview if there's an error
-                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-                doc.open();
-                doc.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>${cssCode.value}</style>
-                    </head>
-                    <body>
-                        ${htmlCode.value}
-                        <script>try { ${jsCode.value} } catch(e) { console.error(e); }</script>
-                    </body>
-                    </html>
-                `);
-                doc.close();
-            }
-        }
+      // Save to localStorage
+      localStorage.setItem('wm_html', html);
+      localStorage.setItem('wm_css', css);
+      localStorage.setItem('wm_js', js);
 
-        // Initialize preview
-        updatePreview();
-    </script>
+      // Refocus the textarea if it was focused before
+      if (active && (active.id === 'html-input' || active.id === 'css-input' || active.id === 'js-input')) {
+        setTimeout(() => active.focus(), 0); // async to avoid browser glitches
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setupEditors();
+      updatePreview();
+
+      document.getElementById('html-input').addEventListener('input', updatePreview);
+      document.getElementById('css-input').addEventListener('input', updatePreview);
+      document.getElementById('js-input').addEventListener('input', updatePreview);
+    });
+  </script>
 </body>
 </html>
