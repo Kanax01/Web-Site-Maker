@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Website Maker</title>
-  <link rel="icon" href="favicon.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.png" type="image/png">
   <style>
     :root {
       --bg-main: #191a1f;
@@ -13,11 +13,11 @@
       --bg-editor: #181920;
       --text: #f6f6f7;
       --text-title: #e3e3e5;
-      --shadow: 0 2px 8px #0005;
-      --shadow-section: 0 1px 5px #0003;
+      --shadow: 0 1px 3px #0002;
+      --shadow-section: 0 1px 3px #0002;
       --accent: #3e98fc;
-      --radius: 8px;
-      --radius-small: 6px;
+      --radius: 6px;
+      --radius-small: 4px;
       --font: 'Segoe UI', Arial, Helvetica, sans-serif;
     }
     html, body {
@@ -26,74 +26,125 @@
       background: var(--bg-main);
       color: var(--text);
       font-family: var(--font);
+      font-size: 15px;
+      zoom: 0.97;
     }
     body {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+    .titlebar {
+      background: var(--bg-panel);
+      padding: 0.7rem 1.2rem 0.7rem 1rem;
+      display: flex;
+      align-items: center;
+      font-size: 1.08em;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--text-title);
+      border-bottom: 1px solid #23242a;
+      box-shadow: 0 1px 3px #0001;
+      margin-bottom: 0.3rem;
+      border-radius: 0 0 var(--radius) var(--radius);
+      width: 100vw;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
     .app-wrap {
       flex: 1;
       display: flex;
       height: 100vh;
+      justify-content: center;
+      align-items: stretch;
     }
     .editor-panel {
-      width: 44vw;
-      min-width: 320px;
-      max-width: 600px;
+      width: 37vw;
+      min-width: 240px;
+      max-width: 470px;
       background: var(--bg-panel);
-      padding: 1.5rem;
+      padding: 1rem 1rem;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.3rem;
       overflow-y: auto;
-      border-right: 2px solid #16171c;
+      border-right: 1.5px solid #16171c;
+      border-radius: var(--radius);
+      margin: 1vw 0;
+      box-shadow: var(--shadow);
+      font-size: 14px;
     }
     .section {
-      margin-bottom: 1rem;
       border-radius: var(--radius-small);
       overflow: hidden;
       box-shadow: var(--shadow-section);
       background: var(--bg-section);
+      display: flex;
+      flex-direction: column;
+      transition: flex-grow 0.3s cubic-bezier(.4,2,.6,1), max-height 0.3s, min-height 0.3s, height 0.3s;
+      margin-bottom: 0.22rem;
+      font-size: 14px;
     }
     .section-header {
       background: var(--bg-section);
       color: var(--text-title);
       cursor: pointer;
-      padding: 0.7rem 1rem;
+      padding: 0.35rem 0.7rem;
       display: flex;
       align-items: center;
       user-select: none;
-      font-weight: 600;
-      font-size: 1.07em;
+      font-weight: 500;
+      font-size: 1em;
+      min-height: 1.9em;
     }
     .section-header span.arrow {
       font-weight: 900;
-      font-size: 20px;
+      font-size: 1.2em;
       margin-left: auto;
     }
     .section-content {
       background: var(--bg-editor);
-      padding: 0.5rem 0.5rem 0.5rem 1rem;
+      padding: 0.3rem 0.3rem 0.3rem 0.7rem;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      transition: padding 0.2s;
     }
     .section-content textarea {
       width: 100%;
-      min-height: 100px;
+      height: 100%;
+      min-height: 55px;
+      max-height: 240px;
+      flex: 1 1 auto;
       font-family: 'Fira Mono', 'Consolas', monospace;
       background: var(--bg-editor);
       color: var(--text);
       border: 1px solid #23242a;
-      border-radius: 4px;
+      border-radius: 3px;
       font-size: 1em;
-      resize: vertical;
+      resize: none;
       box-sizing: border-box;
       transition: border 0.2s;
+      padding: 0.45em 0.7em;
+      line-height: 1.6;
     }
     .section-content textarea:focus {
       outline: none;
       border: 1.5px solid var(--accent);
       background: #20212b;
+    }
+    .section.collapsed {
+      max-height: 2.1em;
+      min-height: 0;
+      height: 2.1em !important;
+      flex-grow: 0 !important;
+      margin-bottom: 0.18rem;
+    }
+    .section.collapsed .section-content {
+      display: none;
     }
     .live-view-panel {
       flex: 1;
@@ -102,35 +153,31 @@
       flex-direction: column;
       align-items: stretch;
       justify-content: flex-start;
+      min-width: 0;
     }
     .iframe-wrap {
       flex: 1;
-      margin: 2rem;
-      margin-top: 0;
+      margin: 1.5rem 1.2rem 1.2rem 1.2rem;
       background: #fff;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      border: 1.5px solid #22232c;
+      border: 1.2px solid #22232c;
       overflow: hidden;
-      min-height: 400px;
-      min-width: 300px;
+      min-height: 250px;
+      min-width: 200px;
       display: flex;
       flex-direction: column;
       transition: background 0.3s;
       position: relative;
     }
-    .titlebar {
-      background: var(--bg-panel);
-      padding: 1rem 2rem 1rem 1.5rem;
-      display: flex;
-      align-items: center;
-      font-size: 1.5em;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      color: var(--text-title);
-      border-bottom: 1px solid #23242a;
-      box-shadow: 0 2px 8px #0002;
-      margin-bottom: 0.5rem;
+    #live-preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+      z-index: 1;
+      min-height: 250px;
+      min-width: 200px;
     }
     @media (max-width: 950px) {
       .app-wrap {
@@ -139,24 +186,25 @@
       .editor-panel {
         width: 100vw;
         max-width: none;
-        border-right: none;
-        border-bottom: 2px solid #16171c;
-      }
-      .live-view-panel {
-        min-height: 300px;
+        border-radius: 0;
+        margin: 0;
+        padding: 0.6rem 0.1rem;
       }
       .iframe-wrap {
-        margin: 1rem;
+        margin: 0.7rem;
       }
     }
     @media (max-width: 600px) {
       .titlebar {
-        font-size: 1.1em;
-        padding: 0.8rem 1rem;
+        font-size: 1em;
+        padding: 0.5rem 0.5rem;
       }
-      .editor-panel, .iframe-wrap {
-        margin: 0.5rem;
-        padding: 0.7rem;
+      .editor-panel {
+        margin: 0;
+        padding: 0.3rem 0.05rem;
+      }
+      .iframe-wrap {
+        margin: 0.4rem;
       }
     }
   </style>
@@ -195,15 +243,15 @@
     </div>
     <div class="live-view-panel">
       <div class="iframe-wrap">
-        <iframe id="live-preview" title="Live View" style="width:100%;height:100%;border:none;background:#fff;z-index:1;"></iframe>
+        <iframe id="live-preview" title="Live View"></iframe>
       </div>
     </div>
   </div>
   <script>
-    // Default content
-    const DEFAULT_HTML = `<!-- Start editing HTML here -->\n<div class="container">\n  <h1>Hello, Website Maker!</h1>\n  <p>Edit HTML, CSS, and JS to see changes live.</p>\n</div>`;
-    const DEFAULT_CSS = `/* Start editing CSS here */\nbody {\n  background: #fff;\n  color: #222;\n  font-family: 'Segoe UI', sans-serif;\n}\n.container {\n  padding: 1.5rem;\n  background: #f5f5f5;\n  border-radius: 8px;\n  box-shadow: 0 2px 8px #0002;\n}`;
-    const DEFAULT_JS = `// Start editing JS here\nconsole.log("Welcome to the Website Maker!");`;
+    // Default content (empty)
+    const DEFAULT_HTML = "";
+    const DEFAULT_CSS = "";
+    const DEFAULT_JS = "";
 
     // Collapsible state
     const collapsed = {
@@ -214,8 +262,35 @@
 
     function toggleSection(section) {
       collapsed[section] = !collapsed[section];
-      document.getElementById(section + '-content').style.display = collapsed[section] ? 'none' : '';
-      document.getElementById(section + '-arrow').textContent = collapsed[section] ? '▸' : '▾';
+      const sectionElem = document.getElementById(section + '-section');
+      const arrowElem = document.getElementById(section + '-arrow');
+      if (collapsed[section]) {
+        sectionElem.classList.add('collapsed');
+        arrowElem.textContent = '▸';
+      } else {
+        sectionElem.classList.remove('collapsed');
+        arrowElem.textContent = '▾';
+      }
+      updateFlex();
+    }
+
+    function updateFlex() {
+      // Expanded sections count
+      const sections = ['html', 'css', 'js'];
+      const expanded = sections.filter(s => !collapsed[s]);
+      const grow = expanded.length ? (1 / expanded.length) : 0;
+      sections.forEach(s => {
+        const elem = document.getElementById(s + '-section');
+        if (!collapsed[s]) {
+          elem.style.flexGrow = grow;
+          elem.style.minHeight = '0';
+          elem.style.height = '';
+        } else {
+          elem.style.flexGrow = 0;
+          elem.style.minHeight = '0';
+          elem.style.height = '';
+        }
+      });
     }
 
     // Set up editors
@@ -279,6 +354,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       setupEditors();
       updatePreview();
+      updateFlex();
 
       document.getElementById('html-input').addEventListener('input', updatePreview);
       document.getElementById('css-input').addEventListener('input', updatePreview);
